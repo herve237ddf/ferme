@@ -80,7 +80,6 @@ if st.session_state.client_verifie and st.session_state.id_client:
         description = st.text_area("Description (optionnelle)")
         submit_vente = st.form_submit_button("💾 Enregistrer la vente")
 
-        # Vérification du stock
         stock_query = """
             SELECT 
                 IFNULL((SELECT SUM(Quantite) FROM Animaux), 0) - 
@@ -96,24 +95,28 @@ if st.session_state.client_verifie and st.session_state.id_client:
                     with get_connection() as conn:
                         cursor = conn.cursor()
 
-                        # 1. Enregistrer la vente
                         cursor.execute(
                             "INSERT INTO Vente (Id_client, Nb_animaux, Prix_total, Description, Date_vente) VALUES (?, ?, ?, ?, ?)",
                             (st.session_state.id_client, nb_animaux, prix_total, description, today)
                         )
                         id_commande = cursor.lastrowid
 
-                        # 2. Enregistrer le paiement
                         cursor.execute(
                             "INSERT INTO Payment (Id_vente, Id_client, Montant, Date_payment) VALUES (?, ?, ?, ?)",
                             (id_commande, st.session_state.id_client, prix_total, today)
                         )
                         conn.commit()
 
+                    # Récupération des infos du client
+                    infos_client = clients_df[clients_df["Id_client"] == st.session_state.id_client].iloc[0]
+                    nom_client = infos_client["Nom"]
+                    prenom_client = infos_client["Prenom"]
+                    localite_client = infos_client["Localite"]
+
                     st.success("✅ Vente et paiement enregistrés avec succès ! 🎉")
                     st.balloons()
 
-                    # 3. Génération de la facture PDF
+                    # Génération de la facture PDF
                     facture_path = f"facture_{id_commande}.pdf"
                     pdf = FPDF()
                     pdf.add_page()
@@ -121,29 +124,39 @@ if st.session_state.client_verifie and st.session_state.id_client:
                     pdf.cell(200, 10, txt="FACTURE DE VENTE", ln=1, align="C")
                     pdf.ln(10)
                     pdf.cell(200, 10, txt=f"Date : {today}", ln=1)
-                    pdf.cell(200, 10, txt=f"Client ID : {st.session_state.id_client}", ln=1)
+                    pdf.cell(200, 10, txt=f"Client : {prenom_client} {nom_client}", ln=1)
+                    pdf.cell(200, 10, txt=f"Localité : {localite_client}", ln=1)
                     pdf.cell(200, 10, txt=f"Commande ID : {id_commande}", ln=1)
                     pdf.cell(200, 10, txt=f"Nombre d'animaux : {nb_animaux}", ln=1)
                     pdf.cell(200, 10, txt=f"Montant : {prix_total} FCFA", ln=1)
-                    pdf.cell(200, 10, txt=f"Description : {description}", ln=1)
+                    pdf.cell(200, 10, txt=f"Description : {description if description else 'Aucune'}", ln=1)
                     pdf.output(facture_path)
                     st.session_state.facture_path = facture_path
 
                     with st.expander("🧾 Détails de la vente"):
                         st.markdown(f"""
-                        - **Client ID** : {st.session_state.id_client}  
+                        - **Client** : {prenom_client} {nom_client}  
+                        - **Localité** : {localite_client}  
                         - **Nombre d'animaux** : {nb_animaux}  
                         - **Prix total** : {prix_total} FCFA  
                         - **Date** : {today}  
                         - **Description** : {description if description else "Aucune"}  
                         """)
 
+                    # Réinitialisation de la session
+                    st.session_state.id_client = None
+                    st.session_state.client_verifie = False
+
                 except Exception as e:
                     st.error(f"❌ Une erreur est survenue : {e}")
             else:
                 st.error(f"❌ Stock insuffisant. Il reste seulement {stock_dispo} poulets.")
 
-# Téléchargement de la facture
+# Télécharger la facture (si disponible)
 if st.session_state.facture_path:
     with open(st.session_state.facture_path, "rb") as f:
         st.download_button("📥 Télécharger la facture", f, file_name=st.session_state.facture_path, mime="application/pdf")
+
+# Pied de page
+st.markdown("---")
+st.markdown("© 2025 NovaSolution – L'innovation au service de votre réussite.")

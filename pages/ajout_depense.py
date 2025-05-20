@@ -36,3 +36,7 @@ with st.form("form_depense"):
         
         conn.commit()
         st.success(f"✅ Dépense enregistrée avec succès !")
+
+# Pied de page
+st.markdown("---")
+st.markdown("© 2025 NovaSolution – L'innovation au service de votre réussite.")

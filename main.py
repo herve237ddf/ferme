@@ -11,11 +11,19 @@ st.title("🐓 Tableau de bord - Gestion de la Ferme")
 conn = get_connection()
 kpis = get_kpis(conn)
 
-col1, col2, col3, col4, col5 = st.columns(5)
-col1.metric("💰 Budget", f"{kpis['budget']} FCFA")
-col2.metric("🐔 Stock total", f"{kpis['animaux']} poulets")
+col1, col2, col3, col4, col5, col6 = st.columns(6)
+col1.metric("💰 Budget (FCFA)", f"{kpis['budget']} ")
+col2.metric("🐔 Stock total (poulets)", f"{kpis['animaux']} ")
 col3.metric("👥 Clients", f"{kpis['clients']}")
-col4.metric("📉 Dépenses", f"{kpis['depenses']} FCFA")
+col4.metric("📉 Dépenses (FCFA)", f"{kpis['depenses']} ")
+# KPI : Recette des ventes
+try:
+    recette_query = "SELECT SUM(Montant) FROM Payment"
+    recette_data = pd.read_sql_query(recette_query, conn)
+    recette = recette_data.iloc[0, 0] if not recette_data.empty and recette_data.iloc[0, 0] else 0
+    col6.metric(label="💸 Recette des ventes (FCFA)", value=f"{recette:,.0f}")
+except Exception as e:
+    col6.warning(f"Impossible d'afficher la recette : {e}")
 
 # Vérification du budget actuel
 budget_query = "SELECT SUM(Montant) as Montant, MAX(Date_fin) as Date_limite FROM Budget"
@@ -30,7 +38,7 @@ if not budget_data.empty and budget_data["Montant"][0]:
     depense_data = pd.read_sql_query(depense_totale_query, conn)
     total_depense = depense_data["Total_depense"][0] if depense_data["Total_depense"][0] else 0
     reste_budget = budget_total - total_depense
-    col5.metric("💰 Reste du budget", f"{reste_budget} FCFA")
+    col5.metric("💰 Reste du budget (FCFA)", f"{reste_budget}")
     
     #st.write("Budget Actuel", f"Montant total : {budget_total} FCFA\nDépenses totales : {total_depense} FCFA\nReste : {reste_budget} FCFA")
     #st.write(f"Date limite : {date_limite.strftime('%d/%m/%Y')}")
@@ -138,3 +146,7 @@ else:
 
     st.button("❌ Annuler", on_click=lambda: st.session_state.update({"confirm_reset": False}))
     st.session_state.confirm_reset = False
+
+# Pied de page
+st.markdown("---")
+st.markdown("© 2025 NovaSolution – L'innovation au service de votre réussite.")    

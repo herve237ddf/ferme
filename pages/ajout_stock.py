@@ -24,3 +24,7 @@ with st.form("form_stock"):
         )
         conn.commit()
         st.success(f"✅ {quantite} poulet(s) ajouté(s) au stock avec succès !")
+
+# Pied de page
+st.markdown("---")
+st.markdown("© 2025 NovaSolution – L'innovation au service de votre réussite.")

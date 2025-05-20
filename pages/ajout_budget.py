@@ -29,3 +29,8 @@ with st.form("form_budget"):
                 st.success("✅ Budget enregistré avec succès !")
             except sqlite3.OperationalError:
                 st.error("❌ Assurez-vous que la colonne 'Montant' existe déjà dans la table Budget.")
+
+
+# Pied de page
+st.markdown("---")
+st.markdown("© 2025 NovaSolution – L'innovation au service de votre réussite.")
