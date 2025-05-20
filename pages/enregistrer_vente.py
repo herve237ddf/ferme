@@ -75,7 +75,7 @@ if st.session_state.client_verifie and st.session_state.id_client:
     st.subheader("📋 Informations sur la vente")
 
     with st.form("form_vente"):
-        nb_animaux = st.number_input("Nombre d'animaux vendus", min_value=1)
+        nb_animaux = st.number_input("Nombre de poulets vendus", min_value=1)
         prix_total = st.number_input("Prix total (FCFA)", min_value=1000, step=1000)
         description = st.text_area("Description (optionnelle)")
         submit_vente = st.form_submit_button("💾 Enregistrer la vente")
@@ -127,7 +127,7 @@ if st.session_state.client_verifie and st.session_state.id_client:
                     pdf.cell(200, 10, txt=f"Client : {prenom_client} {nom_client}", ln=1)
                     pdf.cell(200, 10, txt=f"Localité : {localite_client}", ln=1)
                     pdf.cell(200, 10, txt=f"Commande ID : {id_commande}", ln=1)
-                    pdf.cell(200, 10, txt=f"Nombre d'animaux : {nb_animaux}", ln=1)
+                    pdf.cell(200, 10, txt=f"Nombre de poulet : {nb_animaux}", ln=1)
                     pdf.cell(200, 10, txt=f"Montant : {prix_total} FCFA", ln=1)
                     pdf.cell(200, 10, txt=f"Description : {description if description else 'Aucune'}", ln=1)
                     pdf.output(facture_path)
@@ -137,7 +137,7 @@ if st.session_state.client_verifie and st.session_state.id_client:
                         st.markdown(f"""
                         - **Client** : {prenom_client} {nom_client}  
                         - **Localité** : {localite_client}  
-                        - **Nombre d'animaux** : {nb_animaux}  
+                        - **Nombre de poulets** : {nb_animaux}  
                         - **Prix total** : {prix_total} FCFA  
                         - **Date** : {today}  
                         - **Description** : {description if description else "Aucune"}  

@@ -7,6 +7,26 @@ from utils.database import get_connection
 st.set_page_config(page_title="Tableau de Bord Ferme", layout="wide")
 st.title("🐓 Tableau de bord - Gestion de la Ferme")
 
+
+
+# --- Authentification simple ---
+def check_password():
+    def password_entered():
+        if st.session_state["password"] == st.secrets["app_password"]:
+            st.session_state["password_correct"] = True
+        else:
+            st.session_state["password_correct"] = False
+
+    if "password_correct" not in st.session_state:
+        st.text_input("Mot de passe :", type="password", on_change=password_entered, key="password")
+        st.stop()
+    elif not st.session_state["password_correct"]:
+        st.text_input("Mot de passe :", type="password", on_change=password_entered, key="password")
+        st.error("Mot de passe incorrect")
+        st.stop()
+
+# check_password()
+
 # Récupération des KPIs
 conn = get_connection()
 kpis = get_kpis(conn)
