@@ -11,12 +11,9 @@ st.title("🛒 Enregistrement d'une Vente")
 today = datetime.today().strftime('%Y-%m-%d')
 
 # Initialiser les variables de session
-if "id_client" not in st.session_state:
-    st.session_state.id_client = None
-if "client_verifie" not in st.session_state:
-    st.session_state.client_verifie = False
-if "facture_path" not in st.session_state:
-    st.session_state.facture_path = None
+for key in ["id_client", "client_verifie", "facture_path", "commande_enregistree"]:
+    if key not in st.session_state:
+        st.session_state[key] = None if key != "commande_enregistree" else False
 
 clients_df = pd.read_sql_query("SELECT * FROM Client", get_connection())
 
@@ -75,7 +72,7 @@ if st.session_state.client_verifie and st.session_state.id_client:
     st.subheader("📋 Informations sur la vente")
 
     with st.form("form_vente"):
-        nb_animaux = st.number_input("Nombre de poulets vendus", min_value=1)
+        nb_animaux = st.number_input("Nombre d'animaux vendus", min_value=1)
         prix_total = st.number_input("Prix total (FCFA)", min_value=1000, step=1000)
         description = st.text_area("Description (optionnelle)")
         submit_vente = st.form_submit_button("💾 Enregistrer la vente")
@@ -94,7 +91,6 @@ if st.session_state.client_verifie and st.session_state.id_client:
                 try:
                     with get_connection() as conn:
                         cursor = conn.cursor()
-
                         cursor.execute(
                             "INSERT INTO Vente (Id_client, Nb_animaux, Prix_total, Description, Date_vente) VALUES (?, ?, ?, ?, ?)",
                             (st.session_state.id_client, nb_animaux, prix_total, description, today)
@@ -107,55 +103,82 @@ if st.session_state.client_verifie and st.session_state.id_client:
                         )
                         conn.commit()
 
-                    # Récupération des infos du client
                     infos_client = clients_df[clients_df["Id_client"] == st.session_state.id_client].iloc[0]
-                    nom_client = infos_client["Nom"]
-                    prenom_client = infos_client["Prenom"]
-                    localite_client = infos_client["Localite"]
+                    nom_client, prenom_client, localite_client = infos_client["Nom"], infos_client["Prenom"], infos_client["Localite"]
 
                     st.success("✅ Vente et paiement enregistrés avec succès ! 🎉")
                     st.balloons()
 
                     # Génération de la facture PDF
                     facture_path = f"facture_{id_commande}.pdf"
+                    logo_path = "logo.jpg" 
+                    cache_path = "cache.jpg" 
+
                     pdf = FPDF()
                     pdf.add_page()
-                    pdf.set_font("Arial", size=12)
-                    pdf.cell(200, 10, txt="FACTURE DE VENTE", ln=1, align="C")
+                    pdf.image(logo_path, x=90, y=10, w=30)
+
+                    pdf.set_font("Arial", 'B', 16)
+                    pdf.ln(30)
+                    pdf.cell(200, 30, txt="FACTURE DE VENTE", ln=1, align="C")
                     pdf.ln(10)
-                    pdf.cell(200, 10, txt=f"Date : {today}", ln=1)
-                    pdf.cell(200, 10, txt=f"Client : {prenom_client} {nom_client}", ln=1)
-                    pdf.cell(200, 10, txt=f"Localité : {localite_client}", ln=1)
-                    pdf.cell(200, 10, txt=f"Commande ID : {id_commande}", ln=1)
-                    pdf.cell(200, 10, txt=f"Nombre de poulet : {nb_animaux}", ln=1)
-                    pdf.cell(200, 10, txt=f"Montant : {prix_total} FCFA", ln=1)
-                    pdf.cell(200, 10, txt=f"Description : {description if description else 'Aucune'}", ln=1)
+
+                    pdf.set_font("Arial", size=12)
+                    pdf.cell(100, 10, txt=f"Date : {today}", ln=1)
+                    pdf.cell(100, 10, txt=f"Nom du Client : {prenom_client} {nom_client}", ln=1)
+                    pdf.cell(100, 10, txt=f"Localité : {localite_client}", ln=1)
+                    pdf.cell(100, 10, txt=f"Commande numero : {id_commande}", ln=1)
+                    pdf.ln(10)
+
+                    pdf.set_fill_color(230, 230, 230)
+                    pdf.set_font("Arial", 'B', 12)
+                    pdf.cell(60, 10, "Désignation", 1, 0, 'C', True)
+                    pdf.cell(40, 10, "Quantité", 1, 0, 'C', True)
+                    pdf.cell(50, 10, "Prix Total (FCFA)", 1, 1, 'C', True)
+
+                    pdf.set_font("Arial", size=12)
+                    pdf.cell(60, 10, "Poulets", 1)
+                    pdf.cell(40, 10, str(nb_animaux), 1)
+                    pdf.cell(50, 10, str(prix_total), 1, 1)
+
+                    pdf.ln(10)
+                    pdf.multi_cell(0, 10, f"Description : {description if description else 'Aucune'}")
+
+                    pdf.image(cache_path, x=165, y=200, w=30)
+
                     pdf.output(facture_path)
                     st.session_state.facture_path = facture_path
+                    st.session_state.commande_enregistree = True
 
                     with st.expander("🧾 Détails de la vente"):
                         st.markdown(f"""
                         - **Client** : {prenom_client} {nom_client}  
                         - **Localité** : {localite_client}  
-                        - **Nombre de poulets** : {nb_animaux}  
+                        - **Nombre d'animaux** : {nb_animaux}  
                         - **Prix total** : {prix_total} FCFA  
                         - **Date** : {today}  
                         - **Description** : {description if description else "Aucune"}  
                         """)
-
-                    # Réinitialisation de la session
-                    st.session_state.id_client = None
-                    st.session_state.client_verifie = False
 
                 except Exception as e:
                     st.error(f"❌ Une erreur est survenue : {e}")
             else:
                 st.error(f"❌ Stock insuffisant. Il reste seulement {stock_dispo} poulets.")
 
-# Télécharger la facture (si disponible)
-if st.session_state.facture_path:
+# Télécharger la facture
+if st.session_state.facture_path and st.session_state.commande_enregistree:
     with open(st.session_state.facture_path, "rb") as f:
-        st.download_button("📥 Télécharger la facture", f, file_name=st.session_state.facture_path, mime="application/pdf")
+        if st.download_button(
+            "📥 Télécharger la facture",
+            f,
+            file_name=st.session_state.facture_path,
+            mime="application/pdf"
+        ):
+            st.session_state.id_client = None
+            st.session_state.client_verifie = False
+            st.session_state.facture_path = None
+            st.session_state.commande_enregistree = False
+            st.rerun()
 
 # Pied de page
 st.markdown("---")
