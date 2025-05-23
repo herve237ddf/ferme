@@ -72,23 +72,12 @@ else:
 
 st.markdown("---")
 
-# Graphiques (placeholder)
-st.subheader("🌐 Graphiques")
-col1, col2 = st.columns(2)
-
-# Exemple de graphique ventes
-# df_ventes = pd.read_sql("SELECT Date_vente, Prix_total FROM Vente", conn)
-# df_ventes['Date_vente'] = pd.to_datetime(df_ventes['Date_vente'])
-# fig1 = px.line(df_ventes, x='Date_vente', y='Prix_total', title="Évolution des ventes")
-# col1.plotly_chart(fig1, use_container_width=True)
-
 # Boutons d'actions rapides
 st.subheader("Actions rapides")
-col1, col2, col3, col4 = st.columns(4)
+col1, col2, col3 = st.columns(3)
 col1.page_link("pages/ajout_budget.py", label="Ajouter un budget", icon="💰")
-col2.page_link("pages/ajout_stock.py", label="Ajouter un stock", icon="➕")
-col3.page_link("pages/enregistrer_vente.py", label="Enregistrer une vente", icon="🚪")
-col4.page_link("pages/ajout_depense.py", label="Ajouter une dépense", icon="💸")
+col2.page_link("pages/enregistrer_vente.py", label="Enregistrer une vente", icon="🚪")
+col3.page_link("pages/ajout_depense.py", label="Ajouter une dépense", icon="💸")
 
 # Récupérer les dépenses par type et calculer le total pour chaque type
 query = """

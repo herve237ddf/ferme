@@ -1,5 +1,5 @@
 import streamlit as st
-from datetime import datetime
+from datetime import datetime, date
 from utils.database import get_connection
 
 st.set_page_config(page_title="Ajouter une Dépense")
@@ -8,7 +8,7 @@ st.title("💸 Ajouter une Dépense")
 conn = get_connection()
 cursor = conn.cursor()
 
-# Variables pour stocker temporairement les infos avant confirmation
+# Variables de session
 if "form_data" not in st.session_state:
     st.session_state.form_data = None
 if "confirmation" not in st.session_state:
@@ -26,7 +26,6 @@ if not st.session_state.confirmation:
         submitted = st.form_submit_button("Enregistrer la dépense")
 
         if submitted:
-            # Stocker les infos dans la session pour confirmation
             st.session_state.form_data = {
                 "type_depense": type_depense,
                 "montant": montant,
@@ -34,10 +33,9 @@ if not st.session_state.confirmation:
                 "description": description
             }
             st.session_state.confirmation = True
-            st.experimental_rerun()
+            st.rerun()
 
 else:
-    # Affichage du résumé pour confirmation
     data = st.session_state.form_data
     st.write("### Confirmez les informations suivantes avant d'enregistrer :")
     st.markdown(f"- **Type de dépense** : {data['type_depense']}")
@@ -45,23 +43,41 @@ else:
     st.markdown(f"- **Date de la dépense** : {data['date_depense']}")
     st.markdown(f"- **Description** : {data['description'] if data['description'] else 'Aucune'}")
 
+    # Si type = Achat d'animaux, on demande la quantité
+    quantite_animaux = None
+    if data["type_depense"] == "Achat d'animaux":
+        st.title("Ajouter au stock")
+        quantite_animaux = st.number_input("Quantité de poulets à ajouter au stock", min_value=1, step=1)
+
     col1, col2 = st.columns(2)
     with col1:
         if st.button("✅ Confirmer"):
             try:
+                # Enregistrement de la dépense
                 cursor.execute("""
                     INSERT INTO Depense (Type_depense, Montant, Date, Description)
                     VALUES (?, ?, ?, ?)
                 """, (data['type_depense'], data['montant'], data['date_depense'], data['description']))
                 conn.commit()
+
+                # Ajout au stock si c'est un achat d'animaux
+                if data["type_depense"] == "Achat d'animaux" and quantite_animaux:
+                    today = date.today()
+                    cursor.execute(
+                        "INSERT INTO Animaux (quantite, date_ajout) VALUES (?, ?)",
+                        (quantite_animaux, today.strftime('%Y-%m-%d'))
+                    )
+                    conn.commit()
+                    st.success(f"✅ {quantite_animaux} poulet(s) ajouté(s) au stock avec succès !")
+
                 st.success("✅ Dépense enregistrée avec succès !")
             except Exception as e:
                 st.error(f"❌ Erreur lors de l'enregistrement : {e}")
 
-            # Réinitialiser
+            # Réinitialisation
             st.session_state.form_data = None
             st.session_state.confirmation = False
-            st.experimental_rerun()
+            st.rerun()
 
     with col2:
         if st.button("❌ Annuler"):
