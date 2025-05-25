@@ -5,55 +5,55 @@ from utils.kpi import get_kpis
 from utils.database import get_connection
 
 #st.set_page_config(page_title="Tableau de Bord Ferme", layout="wide")
+# Titre
 st.title("🐓 Tableau de bord - Gestion de la Ferme")
 
-
-
-
-
-# Récupération des KPIs
+# Connexion à la base de données et récupération des KPI
 conn = get_connection()
 kpis = get_kpis(conn)
 
+# 1re rangée de 3 colonnes
 col1, col2, col3 = st.columns(3)
+col1.metric("💰 Budget (FCFA)", f"{kpis['budget']}")
+col2.metric("📉 Dépenses (FCFA)", f"{kpis['depenses']}")
+
+# Vérification du reste du budget
+try:
+    budget_query = "SELECT SUM(Montant) as Montant, MAX(Date_fin) as Date_limite FROM Budget"
+    budget_data = pd.read_sql_query(budget_query, conn)
+    if not budget_data.empty and budget_data["Montant"][0]:
+        budget_total = budget_data["Montant"][0]
+        date_limite = pd.to_datetime(budget_data["Date_limite"][0])
+        depense_totale_query = "SELECT SUM(Montant) as Total_depense FROM Depense"
+        depense_data = pd.read_sql_query(depense_totale_query, conn)
+        total_depense = depense_data["Total_depense"][0] if depense_data["Total_depense"][0] else 0
+        reste_budget = budget_total - total_depense
+        col3.metric("💰 Reste du budget (FCFA)", f"{reste_budget}")
+
+        if pd.Timestamp.now() < date_limite:
+            if total_depense > budget_total:
+                st.error("🚨 Attention : Vous avez dépassé le budget défini alors que la période est encore en cours.")
+            elif reste_budget < 10000:
+                st.warning(f"⚠️ Alerte : Il ne reste que {reste_budget} FCFA dans le budget actuel.")
+    else:
+        col3.metric("💰 Reste du budget (FCFA)", "0")
+except Exception as e:
+    col3.warning(f"Erreur dans le calcul du budget : {e}")
+
+# 2e rangée de 3 colonnes
 col4, col5, col6 = st.columns(3)
-col1.metric("💰 Budget (FCFA)", f"{kpis['budget']} ")
-col4.metric("🐔 Stock total (poulets)", f"{kpis['animaux']} ")
+col4.metric("🐔 Stock total (poulets)", f"{kpis['animaux']}")
 col5.metric("👥 Clients", f"{kpis['clients']}")
-col2.metric("📉 Dépenses (FCFA)", f"{kpis['depenses']} ")
+
 # KPI : Recette des ventes
 try:
     recette_query = "SELECT SUM(Montant) FROM Payment"
     recette_data = pd.read_sql_query(recette_query, conn)
     recette = recette_data.iloc[0, 0] if not recette_data.empty and recette_data.iloc[0, 0] else 0
-    col6.metric(label="💸 Recette des ventes (FCFA)", value=f"{recette:,.0f}")
+    col6.metric("💸 Recette des ventes (FCFA)", f"{recette:,.0f}")
 except Exception as e:
     col6.warning(f"Impossible d'afficher la recette : {e}")
 
-# Vérification du budget actuel
-budget_query = "SELECT SUM(Montant) as Montant, MAX(Date_fin) as Date_limite FROM Budget"
-budget_data = pd.read_sql_query(budget_query, conn)
-
-if not budget_data.empty and budget_data["Montant"][0]:
-    budget_total = budget_data["Montant"][0]
-    date_limite = pd.to_datetime(budget_data["Date_limite"][0])
-
-    # Calcul des dépenses totales actuelles
-    depense_totale_query = "SELECT SUM(Montant) as Total_depense FROM Depense"
-    depense_data = pd.read_sql_query(depense_totale_query, conn)
-    total_depense = depense_data["Total_depense"][0] if depense_data["Total_depense"][0] else 0
-    reste_budget = budget_total - total_depense
-    col3.metric("💰 Reste du budget (FCFA)", f"{reste_budget}")
-    
-    #st.write("Budget Actuel", f"Montant total : {budget_total} FCFA\nDépenses totales : {total_depense} FCFA\nReste : {reste_budget} FCFA")
-    #st.write(f"Date limite : {date_limite.strftime('%d/%m/%Y')}")
-    if pd.Timestamp.now() < date_limite:
-        if total_depense > budget_total:
-            st.error("🚨 Attention : Vous avez dépassé le budget défini alors que la période est encore en cours.")
-        elif reste_budget < 10000:
-            st.warning(f"⚠️ Alerte : Il ne reste que {reste_budget} FCFA dans le budget actuel.")
-else:
-    st.info("ℹ️ Aucun budget actif défini pour le moment.")
 
 st.markdown("---")
 
