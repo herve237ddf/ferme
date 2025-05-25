@@ -1,6 +1,8 @@
 import streamlit as st
 import os
 from pathlib import Path
+
+
 st.set_page_config(page_title="Tableau de Bord Ferme", layout="wide")
 # === CONFIGURATION ===
 USERNAME = st.secrets["auth"]["username"] 
