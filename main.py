@@ -26,15 +26,14 @@ def login():
         if username == USERNAME and password == PASSWORD:
             st.session_state.authenticated = True
             st.success("Connexion réussie !")
-            st.write(f"Bonjour Mr {username}")
-            st.experimental_rerun()
+            st.rerun()
         else:
             st.error("Nom d'utilisateur ou mot de passe incorrect")
 
 # === FONCTION DE DECONNEXION ===
 def logout():
     st.session_state.authenticated = False
-    st.experimental_rerun()
+    st.rerun()
 
 # === AUTHENTIFICATION ===
 if not st.session_state.authenticated:
@@ -42,8 +41,13 @@ if not st.session_state.authenticated:
     st.stop()
 
 # === NAVIGATION ===
+st.sidebar.success(f"✅ Bonjour Mr {username}")
+st.markdown("---")
 st.sidebar.title("Menu")
+st.markdown("---")
 selection = st.sidebar.radio("Navigation", list(PAGES.keys()))
+
+st.markdown("---")
 st.sidebar.button("🔓 Déconnexion", on_click=logout)
 
 # === AFFICHAGE DES PAGES ===
