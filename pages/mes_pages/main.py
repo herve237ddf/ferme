@@ -15,11 +15,12 @@ st.title("🐓 Tableau de bord - Gestion de la Ferme")
 conn = get_connection()
 kpis = get_kpis(conn)
 
-col1, col2, col3, col4, col5, col6 = st.columns(6)
+col1, col2, col3 = st.columns(3)
+col4, col5, col6 = st.columns(3)
 col1.metric("💰 Budget (FCFA)", f"{kpis['budget']} ")
-col2.metric("🐔 Stock total (poulets)", f"{kpis['animaux']} ")
-col3.metric("👥 Clients", f"{kpis['clients']}")
-col4.metric("📉 Dépenses (FCFA)", f"{kpis['depenses']} ")
+col4.metric("🐔 Stock total (poulets)", f"{kpis['animaux']} ")
+col5.metric("👥 Clients", f"{kpis['clients']}")
+col2.metric("📉 Dépenses (FCFA)", f"{kpis['depenses']} ")
 # KPI : Recette des ventes
 try:
     recette_query = "SELECT SUM(Montant) FROM Payment"
@@ -42,7 +43,7 @@ if not budget_data.empty and budget_data["Montant"][0]:
     depense_data = pd.read_sql_query(depense_totale_query, conn)
     total_depense = depense_data["Total_depense"][0] if depense_data["Total_depense"][0] else 0
     reste_budget = budget_total - total_depense
-    col5.metric("💰 Reste du budget (FCFA)", f"{reste_budget}")
+    col3.metric("💰 Reste du budget (FCFA)", f"{reste_budget}")
     
     #st.write("Budget Actuel", f"Montant total : {budget_total} FCFA\nDépenses totales : {total_depense} FCFA\nReste : {reste_budget} FCFA")
     #st.write(f"Date limite : {date_limite.strftime('%d/%m/%Y')}")
