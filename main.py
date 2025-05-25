@@ -35,7 +35,6 @@ def login():
 # === FONCTION DE DECONNEXION ===
 def logout():
     st.session_state.authenticated = False
-    st.rerun()
 
 # === AUTHENTIFICATION ===
 if not st.session_state.authenticated:
