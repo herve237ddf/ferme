@@ -1,5 +1,6 @@
 import streamlit as st
 import os
+from pathlib import Path
 
 # === CONFIGURATION ===
 USERNAME = st.secrets["auth"]["username"] 
@@ -11,43 +12,46 @@ PAGES = {
     "vente": "pages/mes_pages/enregistrer_vente.py",
 }
 
-# === INITIALISATION SESSION ===
+# === INITIALISATION DE LA SESSION ===
 if 'authenticated' not in st.session_state:
     st.session_state.authenticated = False
 
 # === FONCTION DE CONNEXION ===
 def login():
-    st.image("logo.jpg", width=150) 
+    st.image("logo.jpg", width=150)
     st.title("Connexion sécurisée")
-    username = st.text_input("nom utilisateur")
+    username = st.text_input("Nom d'utilisateur")
     password = st.text_input("Mot de passe", type="password")
     if st.button("Se connecter"):
-        if password == PASSWORD and username == USERNAME:
+        if username == USERNAME and password == PASSWORD:
             st.session_state.authenticated = True
             st.success("Connexion réussie !")
             st.write(f"Bonjour Mr {username}")
-            st.rerun()
-
+            st.experimental_rerun()
         else:
-            st.error("Mot de passe incorrect")
+            st.error("Nom d'utilisateur ou mot de passe incorrect")
 
 # === FONCTION DE DECONNEXION ===
 def logout():
     st.session_state.authenticated = False
-    st.rerun()
+    st.experimental_rerun()
 
-# === LOGIQUE PRINCIPALE ===
+# === AUTHENTIFICATION ===
 if not st.session_state.authenticated:
     login()
     st.stop()
 
-# Affichage des pages
+# === NAVIGATION ===
+st.sidebar.title("Menu")
 selection = st.sidebar.radio("Navigation", list(PAGES.keys()))
+st.sidebar.button("🔓 Déconnexion", on_click=logout)
 
-try:
-    with open(PAGES[selection], "r", encoding="utf-8") as file:
-        code = file.read()
-        exec(code, globals())
-except FileNotFoundError:
-    st.error(f"❌ Le fichier {PAGES[selection]} est introuvable.")
-    st.write("Contactez le developpeur a l'adress mail : nguefaherve@gmail.com")
+# === AFFICHAGE DES PAGES ===
+selected_file = PAGES.get(selection)
+if selected_file and Path(selected_file).exists():
+    with open(selected_file, "r", encoding="utf-8") as f:
+        code = f.read()
+        exec(code, globals())  # À remplacer plus tard par importlib pour + sécurité
+else:
+    st.error(f"❌ Le fichier {selected_file} est introuvable.")
+    st.info("Contactez le développeur à l'adresse : nguefaherve@gmail.com")
