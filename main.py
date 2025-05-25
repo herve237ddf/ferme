@@ -42,12 +42,11 @@ if not st.session_state.authenticated:
 
 # === NAVIGATION ===
 st.sidebar.success(f"✅ Bonjour Mr {USERNAME}")
-st.markdown("---")
+st.sidebar.markdown("---")
 st.sidebar.title("Menu")
-st.markdown("---")
+st.sidebar.markdown("---")
 selection = st.sidebar.radio("Navigation", list(PAGES.keys()))
-
-st.markdown("---")
+st.sidebar.markdown("---")
 st.sidebar.button("🔓 Déconnexion", on_click=logout)
 
 # === AFFICHAGE DES PAGES ===
