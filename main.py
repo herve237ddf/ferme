@@ -1,15 +1,8 @@
 import streamlit as st
 import os
-import hashlib
-
-# Fonction de hash
-def hash_password(password):
-    return hashlib.sha256(password.encode()).hexdigest()
-
-
+st.write(st.secrets)
 # === CONFIGURATION ===
-PASSWORD = "motdepasseclient" 
-PASSWORD_HASH = st.secrets["credentials"]["password_hash"]
+PASSWORD = st.secrets["auth"]["password"] 
 PAGES = {
     "Accueil": "pages/mes_pages/main.py",
     "budget": "pages/mes_pages/ajout_budget.py",
