@@ -39,7 +39,7 @@ try:
         col3.metric("💰 Reste du budget (FCFA)", "0")
 except Exception as e:
     col3.warning(f"Erreur dans le calcul du budget : {e}")
-
+st.markdown("- - -")
 # 2e rangée de 3 colonnes
 col4, col5, col6 = st.columns(3)
 col4.metric("🐔 Stock total (poulets)", f"{kpis['animaux']}")
