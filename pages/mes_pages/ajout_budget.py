@@ -3,7 +3,7 @@ import sqlite3
 from datetime import date
 from utils.database import get_connection
 
-st.set_page_config(page_title="Ajouter un Budget")
+#st.set_page_config(page_title="Ajouter un Budget")
 st.title("💰 Ajouter un Budget")
 
 conn = get_connection()

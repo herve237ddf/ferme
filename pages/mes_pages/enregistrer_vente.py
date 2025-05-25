@@ -5,7 +5,7 @@ from utils.database import get_connection
 from fpdf import FPDF
 import os
 
-st.set_page_config(page_title="Enregistrer une Vente")
+#st.set_page_config(page_title="Enregistrer une Vente")
 st.title("🛒 Enregistrement d'une Vente")
 
 today = datetime.today().strftime('%Y-%m-%d')

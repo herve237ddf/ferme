@@ -2,7 +2,7 @@ import streamlit as st
 from datetime import datetime, date
 from utils.database import get_connection
 
-st.set_page_config(page_title="Ajouter une Dépense")
+#st.set_page_config(page_title="Ajouter une Dépense")
 st.title("💸 Ajouter une Dépense")
 
 conn = get_connection()
