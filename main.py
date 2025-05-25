@@ -19,12 +19,13 @@ if 'authenticated' not in st.session_state:
 def login():
     st.image("logo.jpg", width=150) 
     st.title("Connexion sécurisée")
-    username = st.text_input("nom utilisateur", type="text")
+    username = st.text_input("nom utilisateur")
     password = st.text_input("Mot de passe", type="password")
     if st.button("Se connecter"):
         if password == PASSWORD and username == USERNAME:
             st.session_state.authenticated = True
             st.success("Connexion réussie !")
+            st.write(f"Bonjour Mr {username}")
             st.rerun()
 
         else:
