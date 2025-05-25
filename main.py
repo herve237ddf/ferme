@@ -45,10 +45,7 @@ st.sidebar.button("Se déconnecter", on_click=logout)
 
 # Affichage des pages
 selection = st.sidebar.radio("Navigation", list(PAGES.keys()))
-import os
 
-st.write("📁 Fichier actuel :", PAGES[selection])
-st.write("✅ Existe ? ", os.path.exists(PAGES[selection]))
 try:
     with open(PAGES[selection], "r", encoding="utf-8") as file:
         code = file.read()
