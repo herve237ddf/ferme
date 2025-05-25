@@ -41,7 +41,7 @@ if not st.session_state.authenticated:
     st.stop()
 
 # === NAVIGATION ===
-st.sidebar.success(f"✅ Bonjour Mr {username}")
+st.sidebar.success(f"✅ Bonjour Mr {USERNAME}")
 st.markdown("---")
 st.sidebar.title("Menu")
 st.markdown("---")
