@@ -3,7 +3,7 @@ import pandas as pd
 from utils.kpi import get_kpis
 from utils.database import get_connection
 
-st.set_page_config(page_title="Tableau de Bord Ferme", layout="wide")
+
 
 # Style CSS styles KPI
 st.markdown("""
