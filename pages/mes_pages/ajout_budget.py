@@ -13,7 +13,7 @@ with st.form("form_budget"):
     st.write("Veuillez entrer les détails du budget :")
     montant = st.number_input("Montant du budget", min_value=0, step=1000)
     date_debut = st.date_input("Date de début", value=date.today())
-    date_fin = st.date_input("Date de fin", value=date.today())
+    date_fin = st.date_input("Date de fin", min_value = date_debut)
     submitted = st.form_submit_button("Enregistrer")
 
     if submitted:
