@@ -2,7 +2,7 @@ import streamlit as st
 import os
 
 # === CONFIGURATION ===
-USERNAME = st.secrets["auth"]["username "] 
+USERNAME = st.secrets["auth"]["username"] 
 PASSWORD = st.secrets["auth"]["password"] 
 PAGES = {
     "Accueil": "pages/mes_pages/main.py",
