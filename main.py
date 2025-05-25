@@ -22,7 +22,7 @@ def login():
     username = st.text_input("nom utilisateur", type="text")
     password = st.text_input("Mot de passe", type="password")
     if st.button("Se connecter"):
-        if password == PASSWORD AND username == USERNAME:
+        if password == PASSWORD and username == USERNAME:
             st.session_state.authenticated = True
             st.success("Connexion réussie !")
             st.rerun()
