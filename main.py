@@ -1,6 +1,6 @@
 import streamlit as st
 import os
-st.write(st.secrets)
+
 # === CONFIGURATION ===
 PASSWORD = st.secrets["auth"]["password"] 
 PAGES = {
